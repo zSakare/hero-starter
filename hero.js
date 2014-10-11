@@ -79,31 +79,31 @@
 //   }
 // };
 
-// // The "Safe Diamond Miner"
-var move = function(gameData, helpers) {
-  var myHero = gameData.activeHero;
+// // // The "Safe Diamond Miner"
+// var move = function(gameData, helpers) {
+//   var myHero = gameData.activeHero;
 
-  //Get stats on the nearest health well
-  var healthWellStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(boardTile) {
-    if (boardTile.type === 'HealthWell') {
-      return true;
-    }
-  });
-  var distanceToHealthWell = healthWellStats.distance;
-  var directionToHealthWell = healthWellStats.direction;
+//   //Get stats on the nearest health well
+//   var healthWellStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(boardTile) {
+//     if (boardTile.type === 'HealthWell') {
+//       return true;
+//     }
+//   });
+//   var distanceToHealthWell = healthWellStats.distance;
+//   var directionToHealthWell = healthWellStats.direction;
   
 
-  if (myHero.health < 40) {
-    //Heal no matter what if low health
-    return directionToHealthWell;
-  } else if (myHero.health < 100 && distanceToHealthWell === 1) {
-    //Heal if you aren't full health and are close to a health well already
-    return directionToHealthWell;
-  } else {
-    //If healthy, go capture a diamond mine!
-    return helpers.findNearestNonTeamDiamondMine(gameData);
-  }
-};
+//   if (myHero.health < 40) {
+//     //Heal no matter what if low health
+//     return directionToHealthWell;
+//   } else if (myHero.health < 100 && distanceToHealthWell === 1) {
+//     //Heal if you aren't full health and are close to a health well already
+//     return directionToHealthWell;
+//   } else {
+//     //If healthy, go capture a diamond mine!
+//     return helpers.findNearestNonTeamDiamondMine(gameData);
+//   }
+// };
 
 // // The "Selfish Diamond Miner"
 // // This hero will attempt to capture diamond mines (even those owned by teammates).
@@ -138,6 +138,34 @@ var move = function(gameData, helpers) {
 //   return helpers.findNearestHealthWell(gameData);
 // }
 
+// Dendi.
+var move = function (gameData, helpers) {
+  var myHero = gameData.activeHero;
+  var nearestMine = helpers.findNearestNonTeamDiamondMine(gameData);
+  var nearestHealth = helpers.findNearestHealthWell(gameData);
+  var nearestEnemy = helpers.findNearestEnemy(gameData);
+
+  var distanceToMine = nearestMine.distance;
+  var distanceToHealth = nearestHealth.distance;
+
+  // A number unlikely to ever be reached.
+  var distanceToEnemy = 999;
+  if (nearestEnemy) {
+    distanceToEnemy = nearestEnemy.distance;
+  }
+
+  if (myHero.health >= 60) {
+    // YOLO
+    if (distanceToMine <= distanceToEnemy) {
+      return nearestMine;
+    } else {
+      return nearestEnemy;
+    }
+  } else {
+    // NO YOLO PLS.
+    return nearestHealth;
+  }
+}
 
 // Export the move function here
 module.exports = move;

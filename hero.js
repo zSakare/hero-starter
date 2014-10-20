@@ -141,11 +141,16 @@
 // Dendi.
 var move = function (gameData, helpers) {
   var myHero = gameData.activeHero;
-  var nearestMine = helpers.findNearestNonTeamDiamondMine(gameData);
+  var nearestMine = helpers.findNearestUnownedDiamondMine(gameData);
   var nearestHealth = helpers.findNearestHealthWell(gameData);
+  var nearestAlly = helpers.findNearestTeamMember(gameData);
   var nearestEnemy = helpers.findNearestEnemy(gameData);
 
-  var distanceToMine = nearestMine.distance;
+  var distanceToMine = 999;
+  if (nearestMine) {
+    distanceToMine = nearestMine.distance;
+  }
+
   var distanceToHealth = nearestHealth.distance;
 
   // A number unlikely to ever be reached.
@@ -154,16 +159,29 @@ var move = function (gameData, helpers) {
     distanceToEnemy = nearestEnemy.distance;
   }
 
-  if (myHero.health >= 60) {
-    // YOLO
-    if (distanceToMine <= distanceToEnemy) {
+  // YOLO
+  if (nearestEnemy && nearestEnemy.health <= 30) {
+    return nearestEnemy;
+  } else if (myHero.health >= 60) {
+    // Maybe farm
+    if (nearestMine && distanceToMine <= distanceToEnemy) {
       return nearestMine;
-    } else {
+    } else if (nearestEnemy) {
+      // OR YOLO.
       return nearestEnemy;
+    } else if (nearestAlly) {
+      // Heal like nice people.
+      return nearestAlly;
+    } else {
+      return nearestHealth;
     }
   } else {
     // NO YOLO PLS.
-    return nearestHealth;
+    if (nearestAlly && nearestAlly.health < myHero.health) {
+      return nearestAlly;  
+    } else {
+      return nearestHealth;
+    }
   }
 }
 

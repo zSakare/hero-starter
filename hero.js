@@ -141,7 +141,7 @@
 // Dendi.
 var move = function (gameData, helpers) {
   var myHero = gameData.activeHero;
-  var nearestMine = helpers.findNearestUnownedDiamondMine(gameData);
+  var nearestMine = helpers.findNearestNonTeamDiamondMine(gameData);
   var nearestHealth = helpers.findNearestHealthWell(gameData);
   var nearestAlly = helpers.findNearestTeamMember(gameData);
   var nearestEnemy = helpers.findNearestEnemy(gameData);
@@ -164,7 +164,7 @@ var move = function (gameData, helpers) {
     return nearestEnemy;
   } else if (myHero.health >= 60) {
     // Maybe farm
-    if (nearestMine && distanceToMine <= distanceToEnemy) {
+    if (nearestMine && myHero.health >= 70) {
       return nearestMine;
     } else if (nearestEnemy) {
       // OR YOLO.
